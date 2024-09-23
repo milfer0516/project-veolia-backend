@@ -14,7 +14,7 @@ connectionDB(); // Connect to MongoDB database
 const allowedOrigins = [
 	"http://localhost:3000",
 	"http://localhost:5173",
-	"https://veoliaxs-front.vercel.app",
+	"https://project-veolia-sensors.vercel.app",
 ];
 app.use(cors());
 
