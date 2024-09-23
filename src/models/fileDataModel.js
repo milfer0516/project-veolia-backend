@@ -1,19 +1,46 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
-const DataFileSchema = new Schema({
-	tag: {
-		type: String,
-	},
-	Moment: {
+// Definir el esquema común
+const DataFileSchema = new mongoose.Schema({
+	timestamp: {
 		type: Date,
+		required: true,
 	},
-	State: {
+	valor: {
+		type: Number,
+		required: true,
+	},
+	id: {
 		type: String,
+		required: true,
 	},
-	Value: Number,
-	insertion_timestamp: { type: Date, default: Date.now },
+	descripcion: {
+		type: String,
+		required: true,
+	},
+	unidades: {
+		type: String,
+		required: true,
+	},
+	projectName: {
+		type: String,
+		enum: ["EMPRESA_LACTEA", "HINTER", "ENERGIA", "TUNJA", "MONTERIA"],
+		required: true,
+	},
 });
 
-const DataFileModel = mongoose.model("Data_File", DataFileSchema);
+// Función para obtener el modelo dinámicamente según el proyecto
+const getModelByProjectName = (projectName) => {
+	// Crear el nombre de la colección usando el nombre del proyecto
+	const modelName = `${projectName}_DataFile`;
 
-export default DataFileModel;
+	// Verificar si ya existe el modelo
+	if (mongoose.models[modelName]) {
+		return mongoose.models[modelName]; // Devolver el modelo existente si ya está definido
+	}
+
+	// Si no, definir y registrar el modelo
+	return mongoose.model(modelName, DataFileSchema, modelName); // El tercer argumento es el nombre de la colección
+};
+
+export default getModelByProjectName;

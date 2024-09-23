@@ -1,22 +1,30 @@
-import fs from "fs/promises"; // Use fs/promises for cleaner async/await syntax
-import DataFileModel from "../models/fileDataModel.js";
+import multer from "multer";
+import path from "path";
 
-export const insertDataFromFile = async (filePath) => {
-	try {
-		const jsonData = await fs.readFile(filePath, "utf8");
-		const parsedData = JSON.parse(jsonData);
+// Configuración de almacenamiento de multer
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, "uploads/"); // Carpeta donde se guardarán los archivos
+	},
+	filename: (req, file, cb) => {
+		const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+		cb(
+			null,
+			file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+		);
+	},
+});
 
-		// Validate and process data if needed (optional)
-		// ... your validation/processing logic ...
+// Configuración de multer
+const upload = multer({
+	storage,
+	fileFilter: (req, file, cb) => {
+		const allowedTypes = ["application/json", "text/csv"]; // Añade otros tipos si es necesario
+		if (!allowedTypes.includes(file.mimetype)) {
+			return cb(new Error("Tipo de archivo no permitido"), false);
+		}
+		cb(null, true);
+	},
+});
 
-		const dataToInsert = parsedData.map((item) => new DataFileModel(item));
-
-		// Insert data in bulk for efficiency
-		await DataFileModel.insertMany(dataToInsert);
-		//console.log("Data from JSON file inserted successfully!");
-	} catch (error) {
-		console.error("Error reading or inserting data:", error);
-		// Handle errors gracefully, e.g., log details and retry logic
-	}
-};
-
+export const uploadFileMiddleware = upload.single("file"); // 'file' será el nombre del campo en el formulario
