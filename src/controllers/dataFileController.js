@@ -29,6 +29,7 @@ const getDataFiles = async (req, res) => {
 				.limit(parseInt(limit));
 
 			const totalCount = await DataFileModel.countDocuments(query); // Contamos el total de documentos
+			console.log(data);
 
 			res.json({
 				data,

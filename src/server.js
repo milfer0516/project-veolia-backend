@@ -14,9 +14,26 @@ connectionDB(); // Connect to MongoDB database
 const allowedOrigins = [
 	"http://localhost:3000",
 	"http://localhost:5173",
-	"https://veoliaxs-front.vercel.app",
+	"https://project-veolia-sensors.vercel.app/",
 ];
-app.use(cors());
+app.use(
+	cors({
+		origin: (origin, callback) => {
+			if (!origin || allowedOrigins.includes(origin)) {
+				callback(null, true);
+			} else {
+				callback(new Error("Not allowed by CORS"));
+			}
+		},
+		credentials: true, // Enable cookies
+		exposedHeaders: ["Authorization"], // Make Authorization header available in client-side requests
+		maxAge: 86400, // Set max-age to 1 day (86400 seconds)
+		methods: ["GET", "POST", "PUT", "DELETE"], // Enable GET, POST, PUT, DELETE methods
+		allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"], // Enable Content-Type, Authorization, and X-Requested-With headers
+		preflightContinue: true, // Enable preflight request handling
+		optionsSuccessStatus: 204, //
+	})
+);
 
 
 app.use(express.json());
