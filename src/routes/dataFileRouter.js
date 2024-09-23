@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { uploadFileMiddleware } from "../utils/getFileDataJson.js";
 import {
 	getDataFiles,
 	uploadDataFiles,
@@ -7,9 +6,10 @@ import {
 
 //import { getDataFiles } from "../controllers/dataFileController.js";
 
+
 const router = Router();
 
-router.post("/upload-data", uploadFileMiddleware, uploadDataFiles);
+router.post("/upload-data", uploadDataFiles);
 
 router.get("/getFileData", getDataFiles);
 

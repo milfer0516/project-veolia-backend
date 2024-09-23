@@ -13,7 +13,6 @@ export const googleLogin = async (req, res) => {
         }
 		const googleResponse = await oAuth2Client.getToken(code)
 		oAuth2Client.setCredentials(googleResponse.tokens);
-		console.log(googleResponse);
 
 		const userResponse = await axios.get(
 			`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleResponse.tokens.access_token}`
