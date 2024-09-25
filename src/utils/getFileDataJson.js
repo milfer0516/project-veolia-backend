@@ -1,22 +1,56 @@
-import fs from "fs/promises"; // Use fs/promises for cleaner async/await syntax
-import DataFileModel from "../models/fileDataModel.js";
+//import fs from "fs/promises"; // Use fs/promises for cleaner async/await syntax
+import multer from "multer";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
+import fs from "node:fs";
 
-export const insertDataFromFile = async (filePath) => {
-	try {
-		const jsonData = await fs.readFile(filePath, "utf8");
-		const parsedData = JSON.parse(jsonData);
+const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 
-		// Validate and process data if needed (optional)
-		// ... your validation/processing logic ...
+export const insertDataFromFile = multer({
+	dest: join(CURRENT_DIR, "/uploads"),
+	limits: {
+		fileSize: 10000000, // 10MB
+	},
+	fileFilter: (req, file, cb) => {
+		const filetypes = /json|csv/;
+		const mimetype = filetypes.test(file.mimetype);
+		const extname = filetypes.test(file.originalname.split(".").pop());
 
-		const dataToInsert = parsedData.map((item) => new DataFileModel(item));
+		if (mimetype && extname) {
+			return cb(null, true); // Acepta el archivo
+		}
+		cb(new Error("Solo se permiten archivos JSON y CSV")); // Rechaza el archivo
+	},
+});
 
-		// Insert data in bulk for efficiency
-		await DataFileModel.insertMany(dataToInsert);
-		//console.log("Data from JSON file inserted successfully!");
-	} catch (error) {
-		console.error("Error reading or inserting data:", error);
-		// Handle errors gracefully, e.g., log details and retry logic
-	}
+/**
+ * The `saveFile` function saves a file to disk and returns the file path.
+ * @param file - The `file` parameter in the `saveFile` function is an object that represents the file
+ * being saved. It typically contains information such as the file's original name, path, and other
+ * metadata related to the file.
+ * @returns The function `saveFile` returns the file path where the file was saved on the disk.
+ */
+export const saveFile = (file) => {
+	// Save file to disk
+	const filePath = join(CURRENT_DIR, "./uploads", file.originalname);
+	fs.renameSync(file.path, filePath);
+	//console.log("File saved to:", filePath);
+	return filePath;
 };
 
+/**
+ * Función para procesar y eliminar el archivo después de guardar la información
+ * @param {string} filePath - Ruta del archivo guardado
+ */
+export const processAndDeleteFile = async (filePath) => {
+	try {
+		// Aquí iría tu lógica para leer y procesar el archivo
+
+		// Una vez procesado, eliminamos el archivo
+		fs.unlinkSync(filePath);
+		console.log("File deleted from:", filePath);
+	} catch (error) {
+		console.error("Error processing or deleting file:", error);
+		throw new Error("Error al procesar o eliminar el archivo");
+	}
+};

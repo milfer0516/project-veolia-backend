@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import authRouter from "./routes/authRouter.js";
 import getDataFile  from "./routes/dataFileRouter.js";
+import bodyParser from "body-parser";
 //import passport from 'passport';
 import cors from "cors";
 import { connectionDB } from "./config/connectionDB.js";
@@ -35,8 +36,11 @@ app.use(
 	})
 );
 
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
-app.use(express.json());
+// Passport middleware
+
 
 
 app.use("/api", authRouter);

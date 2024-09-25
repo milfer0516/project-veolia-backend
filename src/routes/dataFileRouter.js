@@ -1,15 +1,16 @@
 import { Router } from "express";
 import {
+	getDataByProject,
 	getDataFiles,
-	uploadDataFiles,
+	uploadFile,
 } from "../controllers/dataFileController.js";
-
-//import { getDataFiles } from "../controllers/dataFileController.js";
-
+import { insertDataFromFile } from "../utils/getFileDataJson.js";
 
 const router = Router();
 
-router.post("/upload-data", uploadDataFiles);
+router.get("/project/:projectName", getDataByProject);
+
+router.post("/upload-data", insertDataFromFile.single("file"), uploadFile);
 
 router.get("/getFileData", getDataFiles);
 
